@@ -8,6 +8,8 @@ Main CLI interface for encoding and decoding messages in various media formats.
 import argparse
 import sys
 import os
+from typing import Optional
+from pathlib import Path
 
 # Add the current directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -20,8 +22,15 @@ from stegano.image import get_image_capacity
 from stegano.audio import get_audio_capacity
 
 
-def detect_file_type(filepath):
-    """Detect file type based on extension"""
+def detect_file_type(filepath: str) -> str:
+    """Detect file type based on extension
+    
+    Args:
+        filepath: Path to the file
+        
+    Returns:
+        File type: 'image', 'audio', 'text', or 'unknown'
+    """
     ext = get_file_extension(filepath)
     
     if ext in ['.png', '.jpg', '.jpeg']:
@@ -34,8 +43,15 @@ def detect_file_type(filepath):
         return 'unknown'
 
 
-def encode_command(args):
-    """Handle encode command"""
+def encode_command(args: argparse.Namespace) -> bool:
+    """Handle encode command
+    
+    Args:
+        args: Parsed command line arguments
+        
+    Returns:
+        True if encoding was successful, False otherwise
+    """
     # Detect input file type
     file_type = detect_file_type(args.input)
     
@@ -67,8 +83,15 @@ def encode_command(args):
     return success
 
 
-def decode_command(args):
-    """Handle decode command"""
+def decode_command(args: argparse.Namespace) -> bool:
+    """Handle decode command
+    
+    Args:
+        args: Parsed command line arguments
+        
+    Returns:
+        True if decoding was successful, False otherwise
+    """
     # Detect input file type
     file_type = detect_file_type(args.input)
     
@@ -78,7 +101,7 @@ def decode_command(args):
         return False
         
     # Decode based on file type
-    decoded_message = None
+    decoded_message: Optional[str] = None
     
     if file_type == 'image':
         decoded_message = decode_image(args.input)
@@ -98,8 +121,8 @@ def decode_command(args):
         # Save to file if requested
         if args.output:
             try:
-                with open(args.output, 'w', encoding='utf-8') as f:
-                    f.write(decoded_message)
+                output_path = Path(args.output)
+                output_path.write_text(decoded_message, encoding='utf-8')
                 print(f"✓ Decoded message saved to {args.output}")
             except Exception as e:
                 print(f"✗ Failed to save decoded message: {str(e)}")
@@ -109,8 +132,15 @@ def decode_command(args):
         return False
 
 
-def capacity_command(args):
-    """Handle capacity command"""
+def capacity_command(args: argparse.Namespace) -> bool:
+    """Handle capacity command
+    
+    Args:
+        args: Parsed command line arguments
+        
+    Returns:
+        True if capacity check was successful, False otherwise
+    """
     file_type = detect_file_type(args.input)
     
     if file_type == 'image':
@@ -129,8 +159,18 @@ def capacity_command(args):
     return True
 
 
-def create_parser():
-    """Create argument parser"""
+def create_parser() -> argparse.ArgumentParser:
+    """Create argument parser
+    
+    Returns:
+        Configured ArgumentParser instance
+    """
+def create_parser() -> argparse.ArgumentParser:
+    """Create argument parser
+    
+    Returns:
+        Configured ArgumentParser instance
+    """
     parser = argparse.ArgumentParser(
         description='stegano-sec: Python-based offline steganography toolkit',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -202,8 +242,12 @@ Supported formats:
     return parser
 
 
-def main():
-    """Main entry point"""
+def main() -> int:
+    """Main entry point
+    
+    Returns:
+        Exit code: 0 for success, 1 for failure
+    """
     parser = create_parser()
     
     # If no arguments provided, show help

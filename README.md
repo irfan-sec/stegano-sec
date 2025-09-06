@@ -2,6 +2,8 @@
 
 **stegano-sec** is a Python-based, offline steganography toolkit for security enthusiasts, CTF players, and researchers. It allows you to hide (encode) and extract (decode) text or files within various media types—such as images (PNG, JPEG), audio (WAV), and plain text files—with no need for external APIs or internet access. The toolkit is designed to be modular, user-friendly, and easily extensible, making it ideal for both educational and practical infosec use.
 
+> **🆕 Version 2.0.0**: Now with modern Python packaging, type hints, comprehensive testing, and improved development tools!
+
 ---
 
 ## Features
@@ -13,19 +15,37 @@
 - **Command-line interface (CLI)** for easy usage and scripting
 - **Modular codebase** for adding new media formats or encoding techniques
 - **Offline & privacy-friendly**: No data ever leaves your computer
-- **Optional GUI** for non-CLI users (planned)
-- **Comprehensive documentation** and usage examples
+- **Modern Python**: Full type hints, pathlib usage, and Python 3.8+ compatibility
+- **Developer-friendly**: Comprehensive test suite, pre-commit hooks, and linting tools
+- **Pip installable**: Can be installed as a proper Python package
 
 ---
 
 ## Installation
 
+### Quick Start
 ```bash
 git clone https://github.com/irfan-sec/stegano-sec.git
 cd stegano-sec
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+### Development Setup
+```bash
+git clone https://github.com/irfan-sec/stegano-sec.git
+cd stegano-sec
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # Optional: for development tools
+```
+
+### Package Installation (Future)
+```bash
+# Coming soon: pip install stegano-sec
+pip install -e .  # Install in development mode
 ```
 
 ---
@@ -76,6 +96,58 @@ stegano-sec/
 └── examples/
     └── sample.png
 ```
+
+---
+
+## Development
+
+### Running Tests
+```bash
+# Run basic test suite
+python -m pytest tests/
+
+# Run with verbose output
+python -m pytest tests/ -v
+```
+
+### Code Quality Tools
+```bash
+# Format code with Black
+black stegano/ stegano_sec.py tests/
+
+# Sort imports with isort
+isort stegano/ stegano_sec.py tests/
+
+# Lint with flake8
+flake8 stegano/ stegano_sec.py tests/
+
+# Type checking with mypy
+mypy stegano/ stegano_sec.py
+```
+
+### Pre-commit Hooks
+```bash
+# Install pre-commit hooks (optional)
+pre-commit install
+
+# Run all hooks manually
+pre-commit run --all-files
+```
+
+---
+
+## What's New in v2.0.0
+
+- **🔧 Modern Python Packaging**: Added `pyproject.toml` with comprehensive project metadata
+- **🎯 Type Safety**: Full type hints across all modules for better IDE support
+- **📁 Path Handling**: Migrated from `os.path` to modern `pathlib.Path`
+- **✅ Testing**: Added pytest-based test suite with basic functionality tests
+- **🛠️ Development Tools**: Pre-commit hooks, linting, formatting, and type checking
+- **📦 Package Installation**: Can now be installed as a proper Python package
+- **🧹 Dependency Cleanup**: Removed unnecessary dependencies (argparse)
+- **📝 Better Documentation**: Enhanced docstrings and type annotations
+
+All existing functionality remains fully compatible!
 
 ---
 

@@ -7,7 +7,7 @@ This package provides steganography capabilities for various media types:
 - Text files using whitespace/zero-width character encoding
 """
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __author__ = "Irfan Ali"
 __email__ = "irfan.sec@example.com"
 
