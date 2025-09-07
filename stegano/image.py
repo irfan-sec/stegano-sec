@@ -62,7 +62,8 @@ def encode_image(input_path, output_path, message, file_path=None):
         # Check capacity
         max_chars = calculate_capacity(width, height, channels)
         if len(message) > max_chars:
-            raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, got: {len(message)}")
+            raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, "
+                             f"got: {len(message)}")
 
         # Convert message to binary with delimiter
         binary_message = add_delimiter(string_to_binary(message))

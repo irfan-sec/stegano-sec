@@ -44,7 +44,8 @@ def encode_text_whitespace(cover_text, message):
     words = cover_text.split()
 
     if len(binary_message) > len(words) - 1:
-        raise ValueError(f"Message too long for cover text. Need {len(binary_message)} spaces, have {len(words) - 1}")
+        raise ValueError(f"Message too long for cover text. "
+                         f"Need {len(binary_message)} spaces, have {len(words) - 1}")
 
     # Build result with encoded spaces
     result = []
@@ -110,7 +111,7 @@ def decode_text_whitespace(encoded_text):
             if len(byte) == 8:
                 chars.append(chr(int(byte, 2)))
         return ''.join(chars)
-    except:
+    except (ValueError, UnicodeDecodeError):
         return None
 
 
@@ -135,7 +136,8 @@ def encode_text_zero_width(cover_text, message):
 
     # Split cover text into characters
     if len(binary_message) // 2 > len(cover_text):
-        raise ValueError(f"Message too long for cover text. Need {len(binary_message) // 2} characters, have {len(cover_text)}")
+        raise ValueError(f"Message too long for cover text. "
+                         f"Need {len(binary_message) // 2} characters, have {len(cover_text)}")
 
     result = []
     binary_index = 0
@@ -195,7 +197,7 @@ def decode_text_zero_width(encoded_text):
             if len(byte) == 8:
                 chars.append(chr(int(byte, 2)))
         return ''.join(chars)
-    except:
+    except (ValueError, UnicodeDecodeError):
         return None
 
 
@@ -281,7 +283,7 @@ def decode_text(input_path, method='auto'):
 
         decoded_message = None
 
-        if method == 'auto' or method == 'whitespace':
+        if method in ('auto', 'whitespace'):
             # Try whitespace decoding
             decoded_message = decode_text_whitespace(encoded_text)
             if decoded_message:
@@ -289,7 +291,7 @@ def decode_text(input_path, method='auto'):
                 print(f"  Message length: {len(decoded_message)} characters")
                 return decoded_message
 
-        if method == 'auto' or method == 'zero_width':
+        if method in ('auto', 'zero_width'):
             # Try zero-width character decoding
             decoded_message = decode_text_zero_width(encoded_text)
             if decoded_message:

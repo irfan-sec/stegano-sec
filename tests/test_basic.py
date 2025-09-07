@@ -1,12 +1,13 @@
 """Basic smoke tests for stegano-sec functionality"""
 
-import pytest
-import tempfile
 import os
+import sys
+import tempfile
 from pathlib import Path
 
+import pytest
+
 # Add the parent directory to Python path for imports
-import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from stegano import encode_image, decode_image

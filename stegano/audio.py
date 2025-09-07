@@ -56,7 +56,8 @@ def encode_audio(input_path, output_path, message, file_path=None):
             framerate = wav_in.getframerate()
             channels = wav_in.getnchannels()
 
-            print(f"Audio info: {frames} frames, {sample_width} bytes/sample, {channels} channels, {framerate} Hz")
+            print(f"Audio info: {frames} frames, {sample_width} bytes/sample, "
+                  f"{channels} channels, {framerate} Hz")
 
             # Read all audio data
             audio_data = wav_in.readframes(frames)
@@ -77,7 +78,8 @@ def encode_audio(input_path, output_path, message, file_path=None):
         # Check capacity (1 bit per sample)
         max_chars = (len(audio_array) // 8) - 2  # Reserve space for delimiter
         if len(message) > max_chars:
-            raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, got: {len(message)}")
+            raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, "
+                             f"got: {len(message)}")
 
         # Convert message to binary with delimiter
         binary_message = add_delimiter(string_to_binary(message))

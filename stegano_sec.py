@@ -35,12 +35,11 @@ def detect_file_type(filepath: str) -> str:
 
     if ext in ['.png', '.jpg', '.jpeg']:
         return 'image'
-    elif ext in ['.wav']:
+    if ext in ['.wav']:
         return 'audio'
-    elif ext in ['.txt', '.md']:
+    if ext in ['.txt', '.md']:
         return 'text'
-    else:
-        return 'unknown'
+    return 'unknown'
 
 
 def encode_command(args: argparse.Namespace) -> bool:
@@ -128,8 +127,7 @@ def decode_command(args: argparse.Namespace) -> bool:
                 print(f"✗ Failed to save decoded message: {str(e)}")
 
         return True
-    else:
-        return False
+    return False
 
 
 def capacity_command(args: argparse.Namespace) -> bool:
@@ -159,12 +157,6 @@ def capacity_command(args: argparse.Namespace) -> bool:
     return True
 
 
-def create_parser() -> argparse.ArgumentParser:
-    """Create argument parser
-
-    Returns:
-        Configured ArgumentParser instance
-    """
 def create_parser() -> argparse.ArgumentParser:
     """Create argument parser
 
