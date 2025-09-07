@@ -9,20 +9,20 @@ from typing import Union
 
 def validate_file_exists(filepath: Union[str, Path]) -> bool:
     """Check if a file exists and is readable
-    
+
     Args:
         filepath: Path to the file to check
-        
+
     Returns:
         True if file exists and is readable
-        
+
     Raises:
         FileNotFoundError: If file doesn't exist
         ValueError: If path is not a file
         PermissionError: If file is not readable
     """
     path = Path(filepath)
-    
+
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filepath}")
     if not path.is_file():
@@ -34,20 +34,20 @@ def validate_file_exists(filepath: Union[str, Path]) -> bool:
 
 def validate_output_path(filepath: Union[str, Path]) -> bool:
     """Check if output path is writable
-    
+
     Args:
         filepath: Path to the output file
-        
+
     Returns:
         True if output path is writable
-        
+
     Raises:
         FileNotFoundError: If output directory doesn't exist
         PermissionError: If output directory is not writable
     """
     path = Path(filepath).resolve()
     output_dir = path.parent
-    
+
     if not output_dir.exists():
         raise FileNotFoundError(f"Output directory does not exist: {output_dir}")
     if not os.access(output_dir, os.W_OK):
@@ -57,10 +57,10 @@ def validate_output_path(filepath: Union[str, Path]) -> bool:
 
 def string_to_binary(text: str) -> str:
     """Convert string to binary representation
-    
+
     Args:
         text: String to convert
-        
+
     Returns:
         Binary representation as string
     """
@@ -69,10 +69,10 @@ def string_to_binary(text: str) -> str:
 
 def binary_to_string(binary: str) -> str:
     """Convert binary representation back to string
-    
+
     Args:
         binary: Binary string to convert
-        
+
     Returns:
         Decoded string
     """
@@ -87,11 +87,11 @@ def binary_to_string(binary: str) -> str:
 
 def add_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str:
     """Add delimiter to mark end of hidden data
-    
+
     Args:
         binary_data: Binary data to append delimiter to
         delimiter: Binary delimiter string
-        
+
     Returns:
         Binary data with delimiter appended
     """
@@ -100,11 +100,11 @@ def add_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str:
 
 def find_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str:
     """Find delimiter in binary data and return data before it
-    
+
     Args:
         binary_data: Binary string to search in
         delimiter: Binary delimiter to find
-        
+
     Returns:
         Binary data before the delimiter
     """
@@ -116,10 +116,10 @@ def find_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str
 
 def get_file_extension(filepath: Union[str, Path]) -> str:
     """Get file extension in lowercase
-    
+
     Args:
         filepath: Path to file
-        
+
     Returns:
         File extension in lowercase (e.g., '.png')
     """
@@ -128,10 +128,10 @@ def get_file_extension(filepath: Union[str, Path]) -> str:
 
 def is_valid_image_format(filepath: Union[str, Path]) -> bool:
     """Check if file has valid image extension
-    
+
     Args:
         filepath: Path to check
-        
+
     Returns:
         True if file has a valid image extension
     """
@@ -141,10 +141,10 @@ def is_valid_image_format(filepath: Union[str, Path]) -> bool:
 
 def is_valid_audio_format(filepath: Union[str, Path]) -> bool:
     """Check if file has valid audio extension
-    
+
     Args:
         filepath: Path to check
-        
+
     Returns:
         True if file has a valid audio extension
     """
@@ -154,12 +154,12 @@ def is_valid_audio_format(filepath: Union[str, Path]) -> bool:
 
 def calculate_capacity(width: int, height: int, channels: int = 3) -> int:
     """Calculate maximum capacity for LSB steganography in images
-    
+
     Args:
         width: Image width in pixels
         height: Image height in pixels
         channels: Number of color channels (default: 3 for RGB)
-        
+
     Returns:
         Maximum number of characters that can be hidden
     """
