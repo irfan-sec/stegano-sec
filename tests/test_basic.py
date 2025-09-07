@@ -1,15 +1,17 @@
 """Basic smoke tests for stegano-sec functionality"""
 
+# pylint: disable=duplicate-code  # Similar patterns across audio/image modules are expected
+
 import os
 import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 # Add the parent directory to Python path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# pylint: disable=import-error,wrong-import-position  # pytest may not be available, imports after path mod
+import pytest
 from stegano import encode_image, decode_image
 from stegano.utils import validate_file_exists, get_file_extension
 
@@ -74,18 +76,20 @@ class TestVersionInfo:
 
     def test_version_import(self):
         """Test that version can be imported"""
+        # pylint: disable=import-outside-toplevel  # Version import only needed in test
         from stegano import __version__
         assert __version__ == "2.0.0"
 
     def test_package_imports(self):
         """Test that main functions can be imported"""
-        from stegano import encode_image, decode_image
-        from stegano import encode_audio, decode_audio
-        from stegano import encode_text, decode_text
-
-        # Just test that they're callable
+        # These functions are already imported at module level, just check they work
+        # pylint: disable=redefined-outer-name  # Testing imported functions
         assert callable(encode_image)
         assert callable(decode_image)
+
+        # Import audio and text functions for testing
+        # pylint: disable=import-outside-toplevel  # Only needed in this test
+        from stegano import encode_audio, decode_audio, encode_text, decode_text
         assert callable(encode_audio)
         assert callable(decode_audio)
         assert callable(encode_text)

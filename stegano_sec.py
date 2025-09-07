@@ -6,17 +6,19 @@ Main CLI interface for encoding and decoding messages in various media formats.
 """
 
 import argparse
-import sys
 import os
-from typing import Optional
+import sys
 from pathlib import Path
+from typing import Optional
 
 # Add the current directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from stegano import encode_image, decode_image
-from stegano import encode_audio, decode_audio
-from stegano import encode_text, decode_text
+# Import after path modification
+# pylint: disable=wrong-import-position
+from stegano import (
+    encode_image, decode_image, encode_audio, decode_audio, encode_text, decode_text
+)
 from stegano.utils import get_file_extension
 from stegano.image import get_image_capacity
 from stegano.audio import get_audio_capacity
@@ -123,7 +125,7 @@ def decode_command(args: argparse.Namespace) -> bool:
                 output_path = Path(args.output)
                 output_path.write_text(decoded_message, encoding='utf-8')
                 print(f"✓ Decoded message saved to {args.output}")
-            except Exception as e:
+            except (OSError, IOError, UnicodeError) as e:
                 print(f"✗ Failed to save decoded message: {str(e)}")
 
         return True
@@ -263,10 +265,10 @@ def main() -> int:
             parser.print_help()
             return 1
 
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         print("\n✗ Operation cancelled by user")
         return 1
-    except Exception as e:
+    except (OSError, ValueError, ImportError) as e:
         print(f"✗ Unexpected error: {str(e)}")
         return 1
 
