@@ -3,14 +3,27 @@ Image steganography module using LSB (Least Significant Bit) encoding
 Supports PNG and JPEG formats
 """
 
+# pylint: disable=import-error  # PIL and numpy may not be available in all environments
 from PIL import Image
 import numpy as np
 from .utils import (
     validate_file_exists, validate_output_path,
-    string_to_binary, binary_to_string,
-    add_delimiter, find_delimiter,
-    is_valid_image_format, calculate_capacity
+    string_to_binary, add_delimiter,
+    is_valid_image_format, calculate_capacity, prepare_message_from_file, decode_binary_message
 )
+
+
+def _load_and_process_image(input_path):
+    """Load image and convert to RGB array."""
+    img = Image.open(input_path)
+
+    # Convert to RGB if necessary
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+
+    # Convert image to numpy array
+    img_array = np.array(img)
+    return img_array, img_array.shape
 
 
 def encode_image(input_path, output_path, message, file_path=None):
@@ -39,50 +52,27 @@ def encode_image(input_path, output_path, message, file_path=None):
         if not is_valid_image_format(input_path):
             raise ValueError("Input must be a PNG or JPEG image")
 
-        # Read message from file if file_path provided
-        if file_path:
-            validate_file_exists(file_path)
-            with open(file_path, 'r', encoding='utf-8') as f:
-                message = f.read()
+        # Prepare message and load image data
+        message = prepare_message_from_file(message, file_path)
+        img_array, shape = _load_and_process_image(input_path)
 
-        if not message:
-            raise ValueError("Message cannot be empty")
-
-        # Load image
-        img = Image.open(input_path)
-
-        # Convert to RGB if necessary
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-
-        # Convert image to numpy array for easier manipulation
-        img_array = np.array(img)
-        height, width, channels = img_array.shape
-
-        # Check capacity
-        max_chars = calculate_capacity(width, height, channels)
+        # Check capacity and prepare for encoding
+        max_chars = calculate_capacity(shape[1], shape[0], shape[2])
         if len(message) > max_chars:
             raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, "
                              f"got: {len(message)}")
 
-        # Convert message to binary with delimiter
-        binary_message = add_delimiter(string_to_binary(message))
-
-        # Flatten image array for easier bit manipulation
+        # Encode message into flattened array
         flat_array = img_array.flatten()
-
-        # Encode message into LSBs
-        for i, bit in enumerate(binary_message):
+        for i, bit in enumerate(add_delimiter(string_to_binary(message))):
             if i < len(flat_array):
-                # Clear LSB and set new bit
                 flat_array[i] = (flat_array[i] & 0xFE) | int(bit)
 
-        # Reshape back to original dimensions
-        encoded_array = flat_array.reshape(height, width, channels)
-
-        # Convert back to PIL Image and save
-        encoded_img = Image.fromarray(encoded_array.astype(np.uint8))
-        encoded_img.save(output_path, quality=95)  # High quality for JPEG
+        # Save encoded image
+        # pylint: disable=too-many-function-args  # numpy reshape accepts multiple args
+        Image.fromarray(
+            flat_array.reshape(shape).astype(np.uint8)
+        ).save(output_path, quality=95)
 
         print(f"✓ Message successfully encoded into {output_path}")
         print(f"  Hidden message length: {len(message)} characters")
@@ -90,7 +80,7 @@ def encode_image(input_path, output_path, message, file_path=None):
 
         return True
 
-    except Exception as e:
+    except (OSError, ValueError, AttributeError, TypeError) as e:
         print(f"✗ Encoding failed: {str(e)}")
         return False
 
@@ -135,24 +125,9 @@ def decode_image(input_path):
             binary_message += str(pixel_value & 1)  # Get LSB
 
         # Find delimiter and extract message
-        binary_message = find_delimiter(binary_message)
+        return decode_binary_message(binary_message, input_path)
 
-        if not binary_message:
-            print("✗ No hidden message found or message corrupted")
-            return None
-
-        # Convert binary to text
-        try:
-            decoded_message = binary_to_string(binary_message)
-            print(f"✓ Message successfully decoded from {input_path}")
-            print(f"  Message length: {len(decoded_message)} characters")
-            return decoded_message
-
-        except Exception as e:
-            print(f"✗ Failed to convert binary to text: {str(e)}")
-            return None
-
-    except Exception as e:
+    except (OSError, ValueError, AttributeError, TypeError) as e:
         print(f"✗ Decoding failed: {str(e)}")
         return None
 
@@ -180,6 +155,6 @@ def get_image_capacity(image_path):
         width, height = img.size
         return calculate_capacity(width, height, 3)
 
-    except Exception as e:
+    except (OSError, AttributeError, ValueError) as e:
         print(f"✗ Failed to calculate capacity: {str(e)}")
         return 0

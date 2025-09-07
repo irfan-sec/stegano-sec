@@ -167,3 +167,59 @@ def calculate_capacity(width: int, height: int, channels: int = 3) -> int:
     total_bits = width * height * channels
     # Convert to characters (8 bits per char) minus delimiter
     return (total_bits // 8) - 2  # Reserve space for delimiter
+
+
+def prepare_message_from_file(message, file_path):
+    """
+    Prepare message for encoding by reading from file if needed.
+    
+    Args:
+        message (str): Direct message text
+        file_path (str): Path to file containing message (optional)
+    
+    Returns:
+        str: Message content
+        
+    Raises:
+        FileNotFoundError: If file_path is provided but doesn't exist
+        ValueError: If no message is provided
+    """
+    if file_path:
+        validate_file_exists(file_path)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            message = f.read()
+
+    if not message:
+        raise ValueError("Message cannot be empty")
+
+    return message
+
+
+def decode_binary_message(binary_message, input_path):
+    """
+    Convert extracted binary message to text with error handling.
+    
+    Args:
+        binary_message (str): Binary string extracted from media
+        input_path (str): Path to input file for logging
+        
+    Returns:
+        str or None: Decoded message or None if decoding failed
+    """
+    # Find delimiter and extract message
+    binary_message = find_delimiter(binary_message)
+
+    if not binary_message:
+        print("✗ No hidden message found or message corrupted")
+        return None
+
+    # Convert binary to text
+    try:
+        decoded_message = binary_to_string(binary_message)
+        print(f"✓ Message successfully decoded from {input_path}")
+        print(f"  Message length: {len(decoded_message)} characters")
+        return decoded_message
+
+    except (UnicodeDecodeError, ValueError, AttributeError) as e:
+        print(f"✗ Failed to convert binary to text: {str(e)}")
+        return None

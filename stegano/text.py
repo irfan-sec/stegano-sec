@@ -3,7 +3,7 @@ Text steganography module using whitespace and zero-width character encoding
 """
 
 import re
-from .utils import validate_file_exists, validate_output_path
+from .utils import validate_file_exists, validate_output_path, prepare_message_from_file
 
 
 # Zero-width characters for steganography
@@ -228,13 +228,7 @@ def encode_text(input_path, output_path, message, file_path=None, method='whites
             raise ValueError("Cover text file is empty")
 
         # Read message from file if file_path provided
-        if file_path:
-            validate_file_exists(file_path)
-            with open(file_path, 'r', encoding='utf-8') as f:
-                message = f.read()
-
-        if not message:
-            raise ValueError("Message cannot be empty")
+        message = prepare_message_from_file(message, file_path)
 
         # Encode based on method
         if method == 'whitespace':
@@ -254,7 +248,7 @@ def encode_text(input_path, output_path, message, file_path=None, method='whites
 
         return True
 
-    except Exception as e:
+    except (OSError, ValueError, UnicodeError) as e:
         print(f"✗ Encoding failed: {str(e)}")
         return False
 
@@ -306,6 +300,6 @@ def decode_text(input_path, method='auto'):
 
         return None
 
-    except Exception as e:
+    except (OSError, ValueError, UnicodeError) as e:
         print(f"✗ Decoding failed: {str(e)}")
         return None

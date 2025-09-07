@@ -1,0 +1,3 @@
+[MESSAGES CONTROL]
+# Disable the duplicate-code warning for similar patterns in steganography modules
+disable=duplicate-code
