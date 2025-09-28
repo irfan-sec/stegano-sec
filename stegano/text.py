@@ -3,28 +3,34 @@ Text steganography module using whitespace and zero-width character encoding
 """
 
 import re
-from .utils import validate_file_exists, validate_output_path, prepare_message_from_file
+from typing import Optional, Union
+from pathlib import Path
 
+from .utils import (
+    prepare_message_from_file,
+    validate_file_exists,
+    validate_output_path,
+)
 
 # Zero-width characters for steganography
-ZERO_WIDTH_SPACE = '\u200B'          # Zero-width space
-ZERO_WIDTH_NON_JOINER = '\u200C'     # Zero-width non-joiner
-ZERO_WIDTH_JOINER = '\u200D'         # Zero-width joiner
-WORD_JOINER = '\u2060'               # Word joiner
+ZERO_WIDTH_SPACE = "\u200b"  # Zero-width space
+ZERO_WIDTH_NON_JOINER = "\u200c"  # Zero-width non-joiner
+ZERO_WIDTH_JOINER = "\u200d"  # Zero-width joiner
+WORD_JOINER = "\u2060"  # Word joiner
 
 # Binary encoding using zero-width characters
 ZERO_WIDTH_BINARY = {
-    '00': ZERO_WIDTH_SPACE,
-    '01': ZERO_WIDTH_NON_JOINER,
-    '10': ZERO_WIDTH_JOINER,
-    '11': WORD_JOINER
+    "00": ZERO_WIDTH_SPACE,
+    "01": ZERO_WIDTH_NON_JOINER,
+    "10": ZERO_WIDTH_JOINER,
+    "11": WORD_JOINER,
 }
 
 # Reverse mapping for decoding
 BINARY_ZERO_WIDTH = {v: k for k, v in ZERO_WIDTH_BINARY.items()}
 
 
-def encode_text_whitespace(cover_text, message):
+def encode_text_whitespace(cover_text: str, message: str) -> str:
     """
     Encode message using whitespace steganography
     Uses different numbers of spaces/tabs to represent binary data
@@ -37,15 +43,17 @@ def encode_text_whitespace(cover_text, message):
         str: Cover text with hidden message
     """
     # Convert message to binary
-    binary_message = ''.join(format(ord(char), '08b') for char in message)
-    binary_message += '1111111111111110'  # Delimiter
+    binary_message = "".join(format(ord(char), "08b") for char in message)
+    binary_message += "1111111111111110"  # Delimiter
 
     # Split cover text into words
     words = cover_text.split()
 
     if len(binary_message) > len(words) - 1:
-        raise ValueError(f"Message too long for cover text. "
-                         f"Need {len(binary_message)} spaces, have {len(words) - 1}")
+        raise ValueError(
+            f"Message too long for cover text. "
+            f"Need {len(binary_message)} spaces, have {len(words) - 1}"
+        )
 
     # Build result with encoded spaces
     result = []
@@ -59,18 +67,18 @@ def encode_text_whitespace(cover_text, message):
             if binary_index < len(binary_message):
                 # Use space count to encode binary
                 bit = binary_message[binary_index]
-                if bit == '0':
-                    result.append(' ')      # Single space for 0
+                if bit == "0":
+                    result.append(" ")  # Single space for 0
                 else:
-                    result.append('  ')     # Double space for 1
+                    result.append("  ")  # Double space for 1
                 binary_index += 1
             else:
-                result.append(' ')          # Normal single space
+                result.append(" ")  # Normal single space
 
-    return ''.join(result)
+    return "".join(result)
 
 
-def decode_text_whitespace(encoded_text):
+def decode_text_whitespace(encoded_text: str) -> Optional[str]:
     """
     Decode message from whitespace-encoded text
 
@@ -81,21 +89,21 @@ def decode_text_whitespace(encoded_text):
         str: Decoded message or None if not found
     """
     # Find spaces between words
-    words = re.split(r'(\s+)', encoded_text)
+    words = re.split(r"(\s+)", encoded_text)
 
-    binary_message = ''
+    binary_message = ""
 
     # Extract binary from space patterns
     for i in range(1, len(words), 2):  # Every other element is whitespace
         space_sequence = words[i]
         if len(space_sequence) == 1:
-            binary_message += '0'  # Single space = 0
+            binary_message += "0"  # Single space = 0
         elif len(space_sequence) == 2:
-            binary_message += '1'  # Double space = 1
+            binary_message += "1"  # Double space = 1
         # Ignore other space patterns
 
     # Find delimiter
-    delimiter = '1111111111111110'
+    delimiter = "1111111111111110"
     delimiter_pos = binary_message.find(delimiter)
 
     if delimiter_pos == -1:
@@ -107,15 +115,15 @@ def decode_text_whitespace(encoded_text):
     try:
         chars = []
         for i in range(0, len(binary_message), 8):
-            byte = binary_message[i:i+8]
+            byte = binary_message[i : i + 8]
             if len(byte) == 8:
                 chars.append(chr(int(byte, 2)))
-        return ''.join(chars)
+        return "".join(chars)
     except (ValueError, UnicodeDecodeError):
         return None
 
 
-def encode_text_zero_width(cover_text, message):
+def encode_text_zero_width(cover_text: str, message: str) -> str:
     """
     Encode message using zero-width character steganography
 
@@ -127,17 +135,19 @@ def encode_text_zero_width(cover_text, message):
         str: Cover text with hidden message using zero-width characters
     """
     # Convert message to binary
-    binary_message = ''.join(format(ord(char), '08b') for char in message)
-    binary_message += '1111111111111110'  # Delimiter
+    binary_message = "".join(format(ord(char), "08b") for char in message)
+    binary_message += "1111111111111110"  # Delimiter
 
     # Pad binary to make it divisible by 2 (for 2-bit encoding)
     if len(binary_message) % 2 != 0:
-        binary_message += '0'
+        binary_message += "0"
 
     # Split cover text into characters
     if len(binary_message) // 2 > len(cover_text):
-        raise ValueError(f"Message too long for cover text. "
-                         f"Need {len(binary_message) // 2} characters, have {len(cover_text)}")
+        raise ValueError(
+            f"Message too long for cover text. "
+            f"Need {len(binary_message) // 2} chars, have {len(cover_text)}"
+        )
 
     result = []
     binary_index = 0
@@ -148,15 +158,15 @@ def encode_text_zero_width(cover_text, message):
         # Insert zero-width character after each character
         if binary_index < len(binary_message):
             # Take 2 bits and encode as zero-width character
-            two_bits = binary_message[binary_index:binary_index + 2]
+            two_bits = binary_message[binary_index : binary_index + 2]
             if two_bits in ZERO_WIDTH_BINARY:
                 result.append(ZERO_WIDTH_BINARY[two_bits])
             binary_index += 2
 
-    return ''.join(result)
+    return "".join(result)
 
 
-def decode_text_zero_width(encoded_text):
+def decode_text_zero_width(encoded_text: str) -> Optional[str]:
     """
     Decode message from zero-width character encoded text
 
@@ -176,12 +186,12 @@ def decode_text_zero_width(encoded_text):
         return None
 
     # Convert zero-width characters back to binary
-    binary_message = ''
+    binary_message = ""
     for char in zero_width_chars:
         binary_message += BINARY_ZERO_WIDTH[char]
 
     # Find delimiter
-    delimiter = '1111111111111110'
+    delimiter = "1111111111111110"
     delimiter_pos = binary_message.find(delimiter)
 
     if delimiter_pos == -1:
@@ -193,15 +203,21 @@ def decode_text_zero_width(encoded_text):
     try:
         chars = []
         for i in range(0, len(binary_message), 8):
-            byte = binary_message[i:i+8]
+            byte = binary_message[i : i + 8]
             if len(byte) == 8:
                 chars.append(chr(int(byte, 2)))
-        return ''.join(chars)
+        return "".join(chars)
     except (ValueError, UnicodeDecodeError):
         return None
 
 
-def encode_text(input_path, output_path, message, file_path=None, method='whitespace'):
+def encode_text(
+    input_path: Union[str, Path],
+    output_path: Union[str, Path],
+    message: Optional[str],
+    file_path: Optional[Union[str, Path]] = None,
+    method: str = "whitespace",
+) -> bool:
     """
     Encode a message into a text file using specified steganography method
 
@@ -221,7 +237,7 @@ def encode_text(input_path, output_path, message, file_path=None, method='whites
         validate_output_path(output_path)
 
         # Read cover text
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             cover_text = f.read()
 
         if not cover_text.strip():
@@ -231,15 +247,15 @@ def encode_text(input_path, output_path, message, file_path=None, method='whites
         message = prepare_message_from_file(message, file_path)
 
         # Encode based on method
-        if method == 'whitespace':
+        if method == "whitespace":
             encoded_text = encode_text_whitespace(cover_text, message)
-        elif method == 'zero_width':
+        elif method == "zero_width":
             encoded_text = encode_text_zero_width(cover_text, message)
         else:
             raise ValueError(f"Unknown encoding method: {method}")
 
         # Save encoded text
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(encoded_text)
 
         print(f"✓ Message successfully encoded into {output_path}")
@@ -253,7 +269,9 @@ def encode_text(input_path, output_path, message, file_path=None, method='whites
         return False
 
 
-def decode_text(input_path, method='auto'):
+def decode_text(
+    input_path: Union[str, Path], method: str = "auto"
+) -> Optional[str]:
     """
     Decode hidden message from a text file
 
@@ -269,7 +287,7 @@ def decode_text(input_path, method='auto'):
         validate_file_exists(input_path)
 
         # Read encoded text
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             encoded_text = f.read()
 
         if not encoded_text:
@@ -277,23 +295,27 @@ def decode_text(input_path, method='auto'):
 
         decoded_message = None
 
-        if method in ('auto', 'whitespace'):
+        if method in ("auto", "whitespace"):
             # Try whitespace decoding
             decoded_message = decode_text_whitespace(encoded_text)
             if decoded_message:
-                print(f"✓ Message successfully decoded from {input_path} (whitespace method)")
+                print(
+                    f"✓ Message decoded from {input_path} (whitespace method)"
+                )
                 print(f"  Message length: {len(decoded_message)} characters")
                 return decoded_message
 
-        if method in ('auto', 'zero_width'):
+        if method in ("auto", "zero_width"):
             # Try zero-width character decoding
             decoded_message = decode_text_zero_width(encoded_text)
             if decoded_message:
-                print(f"✓ Message successfully decoded from {input_path} (zero-width method)")
+                print(
+                    f"✓ Message decoded from {input_path} (zero-width method)"
+                )
                 print(f"  Message length: {len(decoded_message)} characters")
                 return decoded_message
 
-        if method != 'auto':
+        if method != "auto":
             print(f"✗ No hidden message found using {method} method")
         else:
             print("✗ No hidden message found using any method")

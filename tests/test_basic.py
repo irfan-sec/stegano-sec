@@ -1,6 +1,6 @@
 """Basic smoke tests for stegano-sec functionality"""
 
-# pylint: disable=duplicate-code  # Similar patterns across audio/image modules are expected
+# pylint: disable=duplicate-code  # Similar patterns expected
 
 import os
 import sys
@@ -10,10 +10,12 @@ from pathlib import Path
 # Add the parent directory to Python path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# pylint: disable=import-error,wrong-import-position  # pytest may not be available, imports after path mod
+# pylint: disable=import-error,wrong-import-position
+# pytest may not be available, imports after path mod
 import pytest
-from stegano import encode_image, decode_image
-from stegano.utils import validate_file_exists, get_file_extension
+
+from stegano import decode_image, encode_image
+from stegano.utils import get_file_extension, validate_file_exists
 
 
 class TestBasicFunctionality:
@@ -29,21 +31,24 @@ class TestBasicFunctionality:
 
         test_message = "This is a test message for steganography!"
 
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            suffix=".png", delete=False
+        ) as tmp_file:
             try:
                 # Test encoding
                 success = encode_image(
-                    str(sample_image),
-                    tmp_file.name,
-                    test_message,
-                    None
+                    str(sample_image), tmp_file.name, test_message, None
                 )
                 assert success, "Encoding should succeed"
 
                 # Test decoding
                 decoded_message = decode_image(tmp_file.name)
-                assert decoded_message is not None, "Decoding should return a message"
-                assert decoded_message == test_message, "Decoded message should match original"
+                assert (
+                    decoded_message is not None
+                ), "Decoding should return a message"
+                assert (
+                    decoded_message == test_message
+                ), "Decoded message should match original"
 
             finally:
                 # Clean up
@@ -78,6 +83,7 @@ class TestVersionInfo:
         """Test that version can be imported"""
         # pylint: disable=import-outside-toplevel  # Version import only needed in test
         from stegano import __version__
+
         assert __version__ == "2.0.0"
 
     def test_package_imports(self):
@@ -89,7 +95,13 @@ class TestVersionInfo:
 
         # Import audio and text functions for testing
         # pylint: disable=import-outside-toplevel  # Only needed in this test
-        from stegano import encode_audio, decode_audio, encode_text, decode_text
+        from stegano import (
+            decode_audio,
+            decode_text,
+            encode_audio,
+            encode_text,
+        )
+
         assert callable(encode_audio)
         assert callable(decode_audio)
         assert callable(encode_text)

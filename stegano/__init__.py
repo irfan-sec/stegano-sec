@@ -11,12 +11,15 @@ __version__ = "2.0.0"
 __author__ = "Irfan Ali"
 __email__ = "irfan.sec@example.com"
 
-from .image import encode_image, decode_image
-from .audio import encode_audio, decode_audio
-from .text import encode_text, decode_text
+from .audio import decode_audio, encode_audio
+from .image import decode_image, encode_image
+from .text import decode_text, encode_text
 
 __all__ = [
-    'encode_image', 'decode_image',
-    'encode_audio', 'decode_audio',
-    'encode_text', 'decode_text'
+    "encode_image",
+    "decode_image",
+    "encode_audio",
+    "decode_audio",
+    "encode_text",
+    "decode_text",
 ]

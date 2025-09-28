@@ -4,36 +4,47 @@ Supports WAV audio format
 """
 
 import wave
-# pylint: disable=import-error  # numpy may not be available in all environments
+from pathlib import Path
+from typing import Dict, Any, Optional, Union, Tuple
+
+# pylint: disable=import-error  # numpy may not be available
 import numpy as np
+
 from .utils import (
-    validate_file_exists, validate_output_path,
-    string_to_binary, add_delimiter,
-    is_valid_audio_format, prepare_message_from_file, decode_binary_message
+    add_delimiter,
+    decode_binary_message,
+    is_valid_audio_format,
+    prepare_message_from_file,
+    string_to_binary,
+    validate_file_exists,
+    validate_output_path,
 )
 
 
-def _load_wav_data(input_path):
+def _load_wav_data(input_path: Union[str, Path]) -> Tuple[Dict[str, Any], bytes]:
     """Load WAV file data and return audio parameters and data."""
-    with wave.open(input_path, 'rb') as wav_in:
+    with wave.open(str(input_path), "rb") as wav_in:
         # Get audio parameters
         params = {
-            'frames': wav_in.getnframes(),
-            'sample_width': wav_in.getsampwidth(),
-            'framerate': wav_in.getframerate(),
-            'channels': wav_in.getnchannels()
+            "frames": wav_in.getnframes(),
+            "sample_width": wav_in.getsampwidth(),
+            "framerate": wav_in.getframerate(),
+            "channels": wav_in.getnchannels(),
         }
 
-        print(f"Audio info: {params['frames']} frames, {params['sample_width']} bytes/sample, "
-              f"{params['channels']} channels, {params['framerate']} Hz")
+        print(
+            f"Audio info: {params['frames']} frames, "
+            f"{params['sample_width']} bytes/sample, "
+            f"{params['channels']} channels, {params['framerate']} Hz"
+        )
 
         # Read all audio data
-        audio_data = wav_in.readframes(params['frames'])
+        audio_data = wav_in.readframes(params["frames"])
 
     return params, audio_data
 
 
-def _convert_audio_to_array(audio_data, sample_width):
+def _convert_audio_to_array(audio_data: bytes, sample_width: int) -> Any:
     """Convert audio data to numpy array based on sample width."""
     if sample_width == 1:
         return np.frombuffer(audio_data, dtype=np.uint8)
@@ -45,9 +56,15 @@ def _convert_audio_to_array(audio_data, sample_width):
     raise ValueError(f"Unsupported sample width: {sample_width} bytes")
 
 
-def encode_audio(input_path, output_path, message, file_path=None):
+def encode_audio(
+    input_path: Union[str, Path],
+    output_path: Union[str, Path],
+    message: Optional[str],
+    file_path: Optional[Union[str, Path]] = None,
+) -> bool:
     """
-    Encode a message or file content into a WAV audio file using LSB steganography
+    Encode a message or file content into a WAV audio file using LSB
+    steganography
 
     Args:
         input_path (str): Path to input WAV file
@@ -78,13 +95,17 @@ def encode_audio(input_path, output_path, message, file_path=None):
         params, audio_data = _load_wav_data(input_path)
 
         # Convert to numpy array
-        audio_array = _convert_audio_to_array(audio_data, params['sample_width'])
+        audio_array = _convert_audio_to_array(
+            audio_data, params["sample_width"]
+        )
 
         # Check capacity and encode
         max_chars = (len(audio_array) // 8) - 2
         if len(message) > max_chars:
-            raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, "
-                             f"got: {len(message)}")
+            raise ValueError(
+                f"Message too long. Maximum capacity: {max_chars} characters, "
+                f"got: {len(message)}"
+            )
 
         # Convert message to binary and encode
         binary_message = add_delimiter(string_to_binary(message))
@@ -93,17 +114,17 @@ def encode_audio(input_path, output_path, message, file_path=None):
         # Encode message into LSBs
         for i, bit in enumerate(binary_message):
             if i < len(modified_audio):
-                if params['sample_width'] == 1:
+                if params["sample_width"] == 1:
                     modified_audio[i] = (modified_audio[i] & 0xFE) | int(bit)
                 else:
                     modified_audio[i] = (modified_audio[i] & ~1) | int(bit)
 
         # Write encoded audio to output file
-        with wave.open(output_path, 'wb') as wav_out:
+        with wave.open(str(output_path), "wb") as wav_out:
             # pylint: disable=no-member  # wav_out is Wave_write, not Wave_read
-            wav_out.setnchannels(params['channels'])
-            wav_out.setsampwidth(params['sample_width'])
-            wav_out.setframerate(params['framerate'])
+            wav_out.setnchannels(params["channels"])
+            wav_out.setsampwidth(params["sample_width"])
+            wav_out.setframerate(params["framerate"])
             wav_out.writeframes(modified_audio.tobytes())
 
         print(f"✓ Message successfully encoded into {output_path}")
@@ -117,7 +138,7 @@ def encode_audio(input_path, output_path, message, file_path=None):
         return False
 
 
-def decode_audio(input_path):
+def decode_audio(input_path: Union[str, Path]) -> Optional[str]:
     """
     Decode hidden message from a WAV audio file using LSB steganography
 
@@ -139,7 +160,7 @@ def decode_audio(input_path):
             raise ValueError("Input must be a WAV audio file")
 
         # Open WAV file and read audio data
-        with wave.open(input_path, 'rb') as wav_in:
+        with wave.open(str(input_path), "rb") as wav_in:
             frames = wav_in.getnframes()
             sample_width = wav_in.getsampwidth()
             audio_data = wav_in.readframes(frames)
@@ -155,7 +176,7 @@ def decode_audio(input_path):
             raise ValueError(f"Unsupported sample width: {sample_width} bytes")
 
         # Extract LSBs to get binary message
-        binary_message = ''
+        binary_message = ""
         for sample in audio_array:
             binary_message += str(sample & 1)  # Get LSB
 
@@ -167,7 +188,7 @@ def decode_audio(input_path):
         return None
 
 
-def get_audio_capacity(audio_path):
+def get_audio_capacity(audio_path: Union[str, Path]) -> int:
     """
     Get the maximum message capacity for a WAV audio file
 
@@ -183,7 +204,7 @@ def get_audio_capacity(audio_path):
         if not is_valid_audio_format(audio_path):
             raise ValueError("Input must be a WAV audio file")
 
-        with wave.open(audio_path, 'rb') as wav_in:
+        with wave.open(str(audio_path), "rb") as wav_in:
             frames = wav_in.getnframes()
 
         # 1 bit per sample, 8 bits per character, minus space for delimiter
