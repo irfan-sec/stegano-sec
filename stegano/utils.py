@@ -4,7 +4,7 @@ Utility functions for the steganography toolkit
 
 import os
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 
 def validate_file_exists(filepath: Union[str, Path]) -> bool:
@@ -49,9 +49,13 @@ def validate_output_path(filepath: Union[str, Path]) -> bool:
     output_dir = path.parent
 
     if not output_dir.exists():
-        raise FileNotFoundError(f"Output directory does not exist: {output_dir}")
+        raise FileNotFoundError(
+            f"Output directory does not exist: {output_dir}"
+        )
     if not os.access(output_dir, os.W_OK):
-        raise PermissionError(f"Output directory is not writable: {output_dir}")
+        raise PermissionError(
+            f"Output directory is not writable: {output_dir}"
+        )
     return True
 
 
@@ -64,7 +68,7 @@ def string_to_binary(text: str) -> str:
     Returns:
         Binary representation as string
     """
-    return ''.join(format(ord(char), '08b') for char in text)
+    return "".join(format(ord(char), "08b") for char in text)
 
 
 def binary_to_string(binary: str) -> str:
@@ -79,13 +83,15 @@ def binary_to_string(binary: str) -> str:
     # Split binary into 8-bit chunks
     chars = []
     for i in range(0, len(binary), 8):
-        byte = binary[i:i+8]
+        byte = binary[i : i + 8]
         if len(byte) == 8:
             chars.append(chr(int(byte, 2)))
-    return ''.join(chars)
+    return "".join(chars)
 
 
-def add_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str:
+def add_delimiter(
+    binary_data: str, delimiter: str = "1111111111111110"
+) -> str:
     """Add delimiter to mark end of hidden data
 
     Args:
@@ -98,7 +104,9 @@ def add_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str:
     return binary_data + delimiter
 
 
-def find_delimiter(binary_data: str, delimiter: str = "1111111111111110") -> str:
+def find_delimiter(
+    binary_data: str, delimiter: str = "1111111111111110"
+) -> str:
     """Find delimiter in binary data and return data before it
 
     Args:
@@ -135,7 +143,7 @@ def is_valid_image_format(filepath: Union[str, Path]) -> bool:
     Returns:
         True if file has a valid image extension
     """
-    valid_extensions = ['.png', '.jpg', '.jpeg']
+    valid_extensions = [".png", ".jpg", ".jpeg"]
     return get_file_extension(filepath) in valid_extensions
 
 
@@ -148,7 +156,7 @@ def is_valid_audio_format(filepath: Union[str, Path]) -> bool:
     Returns:
         True if file has a valid audio extension
     """
-    valid_extensions = ['.wav']
+    valid_extensions = [".wav"]
     return get_file_extension(filepath) in valid_extensions
 
 
@@ -169,24 +177,26 @@ def calculate_capacity(width: int, height: int, channels: int = 3) -> int:
     return (total_bits // 8) - 2  # Reserve space for delimiter
 
 
-def prepare_message_from_file(message, file_path):
+def prepare_message_from_file(
+    message: Optional[str], file_path: Optional[Union[str, Path]]
+) -> str:
     """
     Prepare message for encoding by reading from file if needed.
-    
+
     Args:
         message (str): Direct message text
         file_path (str): Path to file containing message (optional)
-    
+
     Returns:
         str: Message content
-        
+
     Raises:
         FileNotFoundError: If file_path is provided but doesn't exist
         ValueError: If no message is provided
     """
     if file_path:
         validate_file_exists(file_path)
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             message = f.read()
 
     if not message:
@@ -195,14 +205,16 @@ def prepare_message_from_file(message, file_path):
     return message
 
 
-def decode_binary_message(binary_message, input_path):
+def decode_binary_message(
+    binary_message: str, input_path: Union[str, Path]
+) -> Optional[str]:
     """
     Convert extracted binary message to text with error handling.
-    
+
     Args:
         binary_message (str): Binary string extracted from media
         input_path (str): Path to input file for logging
-        
+
     Returns:
         str or None: Decoded message or None if decoding failed
     """

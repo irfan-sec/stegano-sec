@@ -3,13 +3,20 @@ Image steganography module using LSB (Least Significant Bit) encoding
 Supports PNG and JPEG formats
 """
 
-# pylint: disable=import-error  # PIL and numpy may not be available in all environments
-from PIL import Image
 import numpy as np
+
+# pylint: disable=import-error  # PIL/numpy may not be available
+from PIL import Image
+
 from .utils import (
-    validate_file_exists, validate_output_path,
-    string_to_binary, add_delimiter,
-    is_valid_image_format, calculate_capacity, prepare_message_from_file, decode_binary_message
+    add_delimiter,
+    calculate_capacity,
+    decode_binary_message,
+    is_valid_image_format,
+    prepare_message_from_file,
+    string_to_binary,
+    validate_file_exists,
+    validate_output_path,
 )
 
 
@@ -18,8 +25,8 @@ def _load_and_process_image(input_path):
     img = Image.open(input_path)
 
     # Convert to RGB if necessary
-    if img.mode != 'RGB':
-        img = img.convert('RGB')
+    if img.mode != "RGB":
+        img = img.convert("RGB")
 
     # Convert image to numpy array
     img_array = np.array(img)
@@ -59,8 +66,10 @@ def encode_image(input_path, output_path, message, file_path=None):
         # Check capacity and prepare for encoding
         max_chars = calculate_capacity(shape[1], shape[0], shape[2])
         if len(message) > max_chars:
-            raise ValueError(f"Message too long. Maximum capacity: {max_chars} characters, "
-                             f"got: {len(message)}")
+            raise ValueError(
+                f"Message too long. Maximum capacity: {max_chars} characters, "
+                f"got: {len(message)}"
+            )
 
         # Encode message into flattened array
         flat_array = img_array.flatten()
@@ -69,10 +78,10 @@ def encode_image(input_path, output_path, message, file_path=None):
                 flat_array[i] = (flat_array[i] & 0xFE) | int(bit)
 
         # Save encoded image
-        # pylint: disable=too-many-function-args  # numpy reshape accepts multiple args
-        Image.fromarray(
-            flat_array.reshape(shape).astype(np.uint8)
-        ).save(output_path, quality=95)
+        # pylint: disable=too-many-function-args  # numpy reshape
+        Image.fromarray(flat_array.reshape(shape).astype(np.uint8)).save(
+            output_path, quality=95
+        )
 
         print(f"✓ Message successfully encoded into {output_path}")
         print(f"  Hidden message length: {len(message)} characters")
@@ -110,8 +119,8 @@ def decode_image(input_path):
         img = Image.open(input_path)
 
         # Convert to RGB if necessary
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
+        if img.mode != "RGB":
+            img = img.convert("RGB")
 
         # Convert to numpy array
         img_array = np.array(img)
@@ -120,7 +129,7 @@ def decode_image(input_path):
         flat_array = img_array.flatten()
 
         # Extract LSBs to get binary message
-        binary_message = ''
+        binary_message = ""
         for pixel_value in flat_array:
             binary_message += str(pixel_value & 1)  # Get LSB
 
@@ -149,8 +158,8 @@ def get_image_capacity(image_path):
             raise ValueError("Input must be a PNG or JPEG image")
 
         img = Image.open(image_path)
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
+        if img.mode != "RGB":
+            img = img.convert("RGB")
 
         width, height = img.size
         return calculate_capacity(width, height, 3)
