@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1] - 2024-09-28
+
+### Maintenance
+- **🐛 Code Quality**: Confirmed pylint compliance (10.00/10 rating maintained)
+- **🏷️ Version Bump**: Updated version to 2.0.1 for maintenance release
+- **✅ Testing**: All existing tests continue to pass
+
 ## [2.0.0] - 2024-09-06
 
 ### Major Upgrades
