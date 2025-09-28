@@ -10,7 +10,8 @@ from pathlib import Path
 # Add the parent directory to Python path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# pylint: disable=import-error,wrong-import-position  # pytest may not be available, imports after path mod
+# pylint: disable=import-error,wrong-import-position
+# pytest may not be available, imports after path mod
 import pytest
 
 from stegano import decode_image, encode_image

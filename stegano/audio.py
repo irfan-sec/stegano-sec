@@ -33,7 +33,8 @@ def _load_wav_data(input_path: Union[str, Path]) -> Tuple[Dict[str, Any], bytes]
         }
 
         print(
-            f"Audio info: {params['frames']} frames, {params['sample_width']} bytes/sample, "
+            f"Audio info: {params['frames']} frames, "
+            f"{params['sample_width']} bytes/sample, "
             f"{params['channels']} channels, {params['framerate']} Hz"
         )
 
