@@ -84,7 +84,7 @@ class TestVersionInfo:
         # pylint: disable=import-outside-toplevel  # Version import only needed in test
         from stegano import __version__
 
-        assert __version__ == "2.0.0"
+        assert __version__ == "2.0.1"
 
     def test_package_imports(self):
         """Test that main functions can be imported"""
