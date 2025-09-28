@@ -3,6 +3,9 @@ Image steganography module using LSB (Least Significant Bit) encoding
 Supports PNG and JPEG formats
 """
 
+from pathlib import Path
+from typing import Optional, Union, Tuple
+
 import numpy as np
 
 # pylint: disable=import-error  # PIL/numpy may not be available
@@ -20,20 +23,27 @@ from .utils import (
 )
 
 
-def _load_and_process_image(input_path):
+def _load_and_process_image(
+    input_path: Union[str, Path]
+) -> Tuple[np.ndarray, Tuple[int, ...]]:
     """Load image and convert to RGB array."""
-    img = Image.open(input_path)
+    image = Image.open(input_path)
 
     # Convert to RGB if necessary
-    if img.mode != "RGB":
-        img = img.convert("RGB")
+    if image.mode != "RGB":
+        image = image.convert("RGB")  # type: ignore[assignment]
 
     # Convert image to numpy array
-    img_array = np.array(img)
+    img_array = np.array(image)
     return img_array, img_array.shape
 
 
-def encode_image(input_path, output_path, message, file_path=None):
+def encode_image(
+    input_path: Union[str, Path],
+    output_path: Union[str, Path],
+    message: Optional[str],
+    file_path: Optional[Union[str, Path]] = None,
+) -> bool:
     """
     Encode a message or file content into an image using LSB steganography
 
@@ -94,7 +104,7 @@ def encode_image(input_path, output_path, message, file_path=None):
         return False
 
 
-def decode_image(input_path):
+def decode_image(input_path: Union[str, Path]) -> Optional[str]:
     """
     Decode hidden message from an image using LSB steganography
 
@@ -116,14 +126,14 @@ def decode_image(input_path):
             raise ValueError("Input must be a PNG or JPEG image")
 
         # Load image
-        img = Image.open(input_path)
+        image = Image.open(input_path)
 
         # Convert to RGB if necessary
-        if img.mode != "RGB":
-            img = img.convert("RGB")
+        if image.mode != "RGB":
+            image = image.convert("RGB")  # type: ignore[assignment]
 
         # Convert to numpy array
-        img_array = np.array(img)
+        img_array = np.array(image)
 
         # Flatten array
         flat_array = img_array.flatten()
@@ -141,7 +151,7 @@ def decode_image(input_path):
         return None
 
 
-def get_image_capacity(image_path):
+def get_image_capacity(image_path: Union[str, Path]) -> int:
     """
     Get the maximum message capacity for an image
 
@@ -157,11 +167,11 @@ def get_image_capacity(image_path):
         if not is_valid_image_format(image_path):
             raise ValueError("Input must be a PNG or JPEG image")
 
-        img = Image.open(image_path)
-        if img.mode != "RGB":
-            img = img.convert("RGB")
+        image = Image.open(image_path)
+        if image.mode != "RGB":
+            image = image.convert("RGB")  # type: ignore[assignment]
 
-        width, height = img.size
+        width, height = image.size
         return calculate_capacity(width, height, 3)
 
     except (OSError, AttributeError, ValueError) as e:

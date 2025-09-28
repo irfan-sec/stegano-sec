@@ -3,6 +3,8 @@ Text steganography module using whitespace and zero-width character encoding
 """
 
 import re
+from typing import Optional, Union
+from pathlib import Path
 
 from .utils import (
     prepare_message_from_file,
@@ -28,7 +30,7 @@ ZERO_WIDTH_BINARY = {
 BINARY_ZERO_WIDTH = {v: k for k, v in ZERO_WIDTH_BINARY.items()}
 
 
-def encode_text_whitespace(cover_text, message):
+def encode_text_whitespace(cover_text: str, message: str) -> str:
     """
     Encode message using whitespace steganography
     Uses different numbers of spaces/tabs to represent binary data
@@ -76,7 +78,7 @@ def encode_text_whitespace(cover_text, message):
     return "".join(result)
 
 
-def decode_text_whitespace(encoded_text):
+def decode_text_whitespace(encoded_text: str) -> Optional[str]:
     """
     Decode message from whitespace-encoded text
 
@@ -121,7 +123,7 @@ def decode_text_whitespace(encoded_text):
         return None
 
 
-def encode_text_zero_width(cover_text, message):
+def encode_text_zero_width(cover_text: str, message: str) -> str:
     """
     Encode message using zero-width character steganography
 
@@ -164,7 +166,7 @@ def encode_text_zero_width(cover_text, message):
     return "".join(result)
 
 
-def decode_text_zero_width(encoded_text):
+def decode_text_zero_width(encoded_text: str) -> Optional[str]:
     """
     Decode message from zero-width character encoded text
 
@@ -210,8 +212,12 @@ def decode_text_zero_width(encoded_text):
 
 
 def encode_text(
-    input_path, output_path, message, file_path=None, method="whitespace"
-):
+    input_path: Union[str, Path],
+    output_path: Union[str, Path],
+    message: Optional[str],
+    file_path: Optional[Union[str, Path]] = None,
+    method: str = "whitespace",
+) -> bool:
     """
     Encode a message into a text file using specified steganography method
 
@@ -263,7 +269,9 @@ def encode_text(
         return False
 
 
-def decode_text(input_path, method="auto"):
+def decode_text(
+    input_path: Union[str, Path], method: str = "auto"
+) -> Optional[str]:
     """
     Decode hidden message from a text file
 
