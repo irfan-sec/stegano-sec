@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import after path modification
 # pylint: disable=wrong-import-position
+# flake8: noqa: E402
 from stegano import (
     decode_audio,
     decode_image,
@@ -347,7 +348,8 @@ class SteganoGUI:
     def browse_decode_output(self) -> None:
         """Browse for decode output file"""
         filename = filedialog.asksaveasfilename(
-            title="Select output file", filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+            title="Select output file",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
         )
         if filename:
             self.decode_output_path.set(filename)
@@ -419,7 +421,9 @@ class SteganoGUI:
                 messagebox.showerror("Error", "Please select a message file")
                 return
             if not Path(file_path).exists():
-                messagebox.showerror("Error", f"Message file does not exist: {file_path}")
+                messagebox.showerror(
+                    "Error", f"Message file does not exist: {file_path}"
+                )
                 return
 
         # Detect file type
@@ -453,7 +457,9 @@ class SteganoGUI:
                     f"Message successfully encoded into {output_path}",
                 )
             else:
-                messagebox.showerror("Error", "Encoding failed. Check console for details.")
+                messagebox.showerror(
+                    "Error", "Encoding failed. Check console for details."
+                )
 
         except Exception as e:
             messagebox.showerror("Error", f"Encoding failed: {str(e)}")
@@ -504,7 +510,9 @@ class SteganoGUI:
                     output_path = self.decode_output_path.get()
                     if output_path:
                         try:
-                            Path(output_path).write_text(decoded_message, encoding="utf-8")
+                            Path(output_path).write_text(
+                                decoded_message, encoding="utf-8"
+                            )
                             messagebox.showinfo(
                                 "Success",
                                 f"Message decoded successfully!\n"
@@ -513,7 +521,8 @@ class SteganoGUI:
                         except (OSError, IOError, UnicodeError) as e:
                             messagebox.showwarning(
                                 "Partial Success",
-                                f"Message decoded but failed to save to file:\n{str(e)}",
+                                f"Message decoded but failed to save to "
+                                f"file:\n{str(e)}",
                             )
                     else:
                         messagebox.showinfo(
@@ -524,7 +533,9 @@ class SteganoGUI:
                 else:
                     messagebox.showinfo("Success", "Message decoded successfully!")
             else:
-                messagebox.showerror("Error", "Decoding failed. Check console for details.")
+                messagebox.showerror(
+                    "Error", "Decoding failed. Check console for details."
+                )
 
         except Exception as e:
             messagebox.showerror("Error", f"Decoding failed: {str(e)}")
@@ -539,7 +550,9 @@ class SteganoGUI:
             return
 
         if not Path(input_path).exists():
-            messagebox.showerror("Error", f"Input file does not exist: {input_path}")
+            messagebox.showerror(
+                "Error", f"Input file does not exist: {input_path}"
+            )
             return
 
         # Detect file type
