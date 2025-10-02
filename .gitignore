@@ -67,5 +67,8 @@ test_*.wav
 test_*.txt
 *.tmp
 
+# GUI screenshots (documentation images)
+stegano_gui_*.png
+
 # Logs
 *.log
