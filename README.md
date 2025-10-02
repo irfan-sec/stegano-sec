@@ -12,6 +12,7 @@
   - PNG & JPEG images (using LSB steganography)
   - WAV audio files (LSB steganography)
   - Plain text files (whitespace or zero-width character encoding)
+- **Graphical User Interface (GUI)** - Easy-to-use tkinter-based interface
 - **Command-line interface (CLI)** for easy usage and scripting
 - **Modular codebase** for adding new media formats or encoding techniques
 - **Offline & privacy-friendly**: No data ever leaves your computer
@@ -52,25 +53,42 @@ pip install -e .  # Install in development mode
 
 ## Usage
 
-### Encode a message in an image
+### GUI (Graphical User Interface)
+
+Launch the user-friendly GUI:
+
+```bash
+python stegano_sec_gui.py
+```
+
+The GUI provides three tabs:
+- **Encode**: Hide messages in images, audio, or text files
+- **Decode**: Extract hidden messages from files
+- **Capacity**: Check how much data a file can hide
+
+![stegano-sec GUI](https://github.com/user-attachments/assets/7aa045d4-a56c-4b8b-9609-655abf9cca2b)
+
+### CLI (Command Line Interface)
+
+#### Encode a message in an image
 
 ```bash
 python stegano_sec.py encode -i input.png -o output.png -m "Secret message here"
 ```
 
-### Decode a message from an image
+#### Decode a message from an image
 
 ```bash
 python stegano_sec.py decode -i output.png
 ```
 
-### Encode a file in a WAV audio
+#### Encode a file in a WAV audio
 
 ```bash
 python stegano_sec.py encode -i input.wav -o output.wav -f secret.txt
 ```
 
-### More options
+#### More options
 
 See all available commands and options:
 
@@ -85,6 +103,7 @@ python stegano_sec.py --help
 ```
 stegano-sec/
 ├── stegano_sec.py         # CLI entry point
+├── stegano_sec_gui.py     # GUI entry point
 ├── stegano/
 │   ├── __init__.py
 │   ├── image.py           # Image steganography functions

@@ -11,6 +11,7 @@ stegano-sec/
 ├── README.md              # Project documentation
 ├── requirements.txt       # Python dependencies
 ├── stegano_sec.py        # CLI entry point
+├── stegano_sec_gui.py    # GUI entry point
 ├── .gitignore            # Git ignore file
 ├── stegano/              # Main package
 │   ├── __init__.py       # Package initialization
@@ -48,13 +49,20 @@ stegano-sec/
 - **Auto-detection**: Can automatically detect encoding method
 - **Capacity**: Depends on cover text length
 
-#### 4. **Command Line Interface**
+#### 4. **Graphical User Interface (GUI)**
+- **Framework**: Tkinter (built-in, cross-platform)
+- **Tabs**: Encode, Decode, Capacity
+- **Features**: File browsers, text input areas, drag-and-drop compatible
+- **User-friendly**: Intuitive interface with clear labels and error messages
+- **Real-time feedback**: Success/error dialogs with detailed information
+
+#### 5. **Command Line Interface (CLI)**
 - **Commands**: `encode`, `decode`, `capacity`
 - **Input modes**: Direct message (`-m`) or file (`-f`)
 - **Output options**: Console display or file output
 - **Help system**: Comprehensive help with examples
 
-#### 5. **Utilities & Error Handling**
+#### 6. **Utilities & Error Handling**
 - **Validation**: File existence, format checking, permissions
 - **Capacity calculation**: Real-time capacity analysis
 - **User feedback**: Clear success/error messages with details
@@ -74,6 +82,13 @@ All core features have been tested and verified:
 
 ### 📋 Usage Examples
 
+**GUI Mode:**
+```bash
+# Launch the graphical interface
+python stegano_sec_gui.py
+```
+
+**CLI Mode:**
 ```bash
 # Encode text in image
 python stegano_sec.py encode -i sample.png -o encoded.png -m "Secret message"
@@ -114,7 +129,6 @@ The modular design supports easy extension:
 - Additional image formats (BMP, TIFF)
 - More audio formats (MP3, FLAC)
 - Video steganography (MP4, AVI)
-- GUI interface (Tkinter/PyQt)
 - Advanced encoding methods (DCT, DWT)
 - Encryption integration (AES)
 - Batch processing capabilities
