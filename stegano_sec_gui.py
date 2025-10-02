@@ -32,7 +32,7 @@ from stegano.image import get_image_capacity
 from stegano.utils import get_file_extension
 
 
-class SteganoGUI:
+class SteganoGUI:  # pylint: disable=too-many-instance-attributes
     """Main GUI class for stegano-sec"""
 
     def __init__(self, root: tk.Tk):
@@ -388,7 +388,7 @@ class SteganoGUI:
             return "text"
         return "unknown"
 
-    def encode_message(self) -> None:
+    def encode_message(self) -> None:  # pylint: disable=too-many-return-statements,too-many-branches
         """Encode message into file"""
         # Validate inputs
         input_path = self.encode_input_path.get()
@@ -461,10 +461,10 @@ class SteganoGUI:
                     "Error", "Encoding failed. Check console for details."
                 )
 
-        except Exception as e:
+        except (OSError, ValueError, UnicodeError, AttributeError, TypeError) as e:
             messagebox.showerror("Error", f"Encoding failed: {str(e)}")
 
-    def decode_message(self) -> None:
+    def decode_message(self) -> None:  # pylint: disable=too-many-branches
         """Decode message from file"""
         # Validate inputs
         input_path = self.decode_input_path.get()
@@ -537,7 +537,7 @@ class SteganoGUI:
                     "Error", "Decoding failed. Check console for details."
                 )
 
-        except Exception as e:
+        except (OSError, ValueError, UnicodeError, AttributeError, TypeError) as e:
             messagebox.showerror("Error", f"Decoding failed: {str(e)}")
 
     def check_capacity(self) -> None:
@@ -604,7 +604,7 @@ class SteganoGUI:
             self.capacity_result_text.delete("1.0", tk.END)
             self.capacity_result_text.insert("1.0", result)
 
-        except Exception as e:
+        except (OSError, ValueError, AttributeError, TypeError) as e:
             messagebox.showerror("Error", f"Capacity check failed: {str(e)}")
 
 
