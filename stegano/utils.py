@@ -143,7 +143,7 @@ def is_valid_image_format(filepath: Union[str, Path]) -> bool:
     Returns:
         True if file has a valid image extension
     """
-    valid_extensions = [".png", ".jpg", ".jpeg"]
+    valid_extensions = [".png", ".jpg", ".jpeg", ".bmp"]
     return get_file_extension(filepath) in valid_extensions
 
 

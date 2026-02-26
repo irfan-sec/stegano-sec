@@ -23,9 +23,12 @@ from stegano import (
     decode_audio,
     decode_image,
     decode_text,
+    decrypt_message,
     encode_audio,
     encode_image,
     encode_text,
+    encrypt_message,
+    is_encrypted,
 )
 from stegano.audio import get_audio_capacity
 from stegano.image import get_image_capacity
@@ -149,6 +152,20 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
             value="zero_width",
         ).pack(side=tk.LEFT, padx=5)
 
+        # Password field for encryption
+        password_frame = ttk.LabelFrame(
+            self.encode_tab, text="Encryption (Optional)", padding=10
+        )
+        password_frame.pack(fill=tk.X, padx=10, pady=5)
+        ttk.Label(password_frame, text="Password:").pack(side=tk.LEFT, padx=5)
+        self.encode_password = tk.StringVar()
+        ttk.Entry(
+            password_frame, textvariable=self.encode_password, show="*", width=30
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Label(
+            password_frame, text="(AES-256 encryption)", foreground="gray"
+        ).pack(side=tk.LEFT, padx=5)
+
         # Encode button
         ttk.Button(
             self.encode_tab, text="Encode Message", command=self.encode_message
@@ -221,6 +238,17 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
             text="Zero-width",
             variable=self.decode_text_method,
             value="zero_width",
+        ).pack(side=tk.LEFT, padx=5)
+
+        # Password field for decryption
+        password_frame = ttk.Frame(output_frame)
+        password_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(password_frame, text="Password (if encrypted):").pack(
+            side=tk.LEFT, padx=5
+        )
+        self.decode_password = tk.StringVar()
+        ttk.Entry(
+            password_frame, textvariable=self.decode_password, show="*", width=30
         ).pack(side=tk.LEFT, padx=5)
 
         # Decoded message display
@@ -297,8 +325,8 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
         filename = filedialog.askopenfilename(
             title="Select input file",
             filetypes=[
-                ("All supported files", "*.png *.jpg *.jpeg *.wav *.txt *.md"),
-                ("Image files", "*.png *.jpg *.jpeg"),
+                ("All supported files", "*.png *.jpg *.jpeg *.bmp *.wav *.txt *.md"),
+                ("Image files", "*.png *.jpg *.jpeg *.bmp"),
                 ("Audio files", "*.wav"),
                 ("Text files", "*.txt *.md"),
                 ("All files", "*.*"),
@@ -314,6 +342,7 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
             filetypes=[
                 ("PNG files", "*.png"),
                 ("JPEG files", "*.jpg *.jpeg"),
+                ("BMP files", "*.bmp"),
                 ("WAV files", "*.wav"),
                 ("Text files", "*.txt *.md"),
                 ("All files", "*.*"),
@@ -335,8 +364,8 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
         filename = filedialog.askopenfilename(
             title="Select input file",
             filetypes=[
-                ("All supported files", "*.png *.jpg *.jpeg *.wav *.txt *.md"),
-                ("Image files", "*.png *.jpg *.jpeg"),
+                ("All supported files", "*.png *.jpg *.jpeg *.bmp *.wav *.txt *.md"),
+                ("Image files", "*.png *.jpg *.jpeg *.bmp"),
                 ("Audio files", "*.wav"),
                 ("Text files", "*.txt *.md"),
                 ("All files", "*.*"),
@@ -359,8 +388,8 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
         filename = filedialog.askopenfilename(
             title="Select input file",
             filetypes=[
-                ("All supported files", "*.png *.jpg *.jpeg *.wav *.txt *.md"),
-                ("Image files", "*.png *.jpg *.jpeg"),
+                ("All supported files", "*.png *.jpg *.jpeg *.bmp *.wav *.txt *.md"),
+                ("Image files", "*.png *.jpg *.jpeg *.bmp"),
                 ("Audio files", "*.wav"),
                 ("Text files", "*.txt *.md"),
                 ("All files", "*.*"),
@@ -380,7 +409,7 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
         """
         ext = get_file_extension(filepath)
 
-        if ext in [".png", ".jpg", ".jpeg"]:
+        if ext in [".png", ".jpg", ".jpeg", ".bmp"]:
             return "image"
         if ext in [".wav"]:
             return "audio"
@@ -440,6 +469,11 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
         # Encode based on file type
         try:
             success = False
+
+            # Apply encryption if password is provided
+            password = self.encode_password.get()
+            if password and message:
+                message = encrypt_message(message, password)
 
             if file_type == "image":
                 success = encode_image(input_path, output_path, message, file_path)
@@ -501,6 +535,24 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
                 decoded_message = decode_text(input_path, method)
 
             if decoded_message:
+                # Handle encrypted messages
+                if is_encrypted(decoded_message):
+                    password = self.decode_password.get()
+                    if not password:
+                        messagebox.showwarning(
+                            "Encrypted",
+                            "Message is encrypted. Enter the password and try again.",
+                        )
+                        return
+                    decrypted = decrypt_message(decoded_message, password)
+                    if decrypted is None:
+                        messagebox.showerror(
+                            "Error",
+                            "Decryption failed. Wrong password?",
+                        )
+                        return
+                    decoded_message = decrypted
+
                 # Display in text widget
                 self.decode_result_text.delete("1.0", tk.END)
                 self.decode_result_text.insert("1.0", decoded_message)
