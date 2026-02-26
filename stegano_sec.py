@@ -295,7 +295,7 @@ Supported formats:
     encode_parser.add_argument(
         "-p",
         "--password",
-        help="Encrypt message with AES-256 using this password",
+        help="Encrypt message with AES using this password",
     )
 
     # Decode command

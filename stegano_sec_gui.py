@@ -163,7 +163,7 @@ class SteganoGUI:  # pylint: disable=too-many-instance-attributes
             password_frame, textvariable=self.encode_password, show="*", width=30
         ).pack(side=tk.LEFT, padx=5)
         ttk.Label(
-            password_frame, text="(AES-256 encryption)", foreground="gray"
+            password_frame, text="(AES encryption)", foreground="gray"
         ).pack(side=tk.LEFT, padx=5)
 
         # Encode button

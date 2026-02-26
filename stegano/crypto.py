@@ -1,8 +1,9 @@
 """
 Cryptographic utilities for stegano-sec
 
-Provides password-based AES-256 encryption using Fernet (authenticated encryption)
-with PBKDF2 key derivation for securing hidden messages.
+Provides password-based authenticated encryption using Fernet
+(AES-128-CBC + HMAC-SHA256) with PBKDF2 key derivation for securing
+hidden messages.
 """
 
 import base64
@@ -40,11 +41,9 @@ def _derive_key(password: str, salt: bytes) -> bytes:
 
 
 def encrypt_message(message: str, password: str) -> str:
-    """Encrypt a message using AES-256 with a password.
+    """Encrypt a message with a password using authenticated encryption.
 
     Uses Fernet (AES-128-CBC with HMAC-SHA256) for authenticated encryption.
-    The salt is prepended to the ciphertext so decryption only needs the
-    password.
 
     Args:
         message: Plaintext message to encrypt

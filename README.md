@@ -2,7 +2,7 @@
 
 **stegano-sec** is a Python-based, offline steganography toolkit for security enthusiasts, CTF players, and researchers. It allows you to hide (encode) and extract (decode) text or files within various media types—such as images (PNG, JPEG), audio (WAV), and plain text files—with no need for external APIs or internet access. The toolkit is designed to be modular, user-friendly, and easily extensible, making it ideal for both educational and practical infosec use.
 
-> **🆕 Version 3.0.0**: Now with AES-256 encryption, BMP support, and enhanced CLI!
+> **🆕 Version 3.0.0**: Now with AES encryption, BMP support, and enhanced CLI!
 
 ---
 
@@ -12,7 +12,7 @@
   - PNG, JPEG & BMP images (using LSB steganography)
   - WAV audio files (LSB steganography)
   - Plain text files (whitespace or zero-width character encoding)
-- **🔒 AES-256 Encryption**: Optional password-based encryption for hidden messages
+- **🔒 AES Encryption**: Optional password-based encryption for hidden messages
 - **Graphical User Interface (GUI)** - Easy-to-use tkinter-based interface
 - **Command-line interface (CLI)** for easy usage and scripting
 - **Modular codebase** for adding new media formats or encoding techniques
@@ -122,7 +122,7 @@ stegano-sec/
 │   ├── image.py           # Image steganography functions
 │   ├── audio.py           # Audio steganography functions
 │   ├── text.py            # Text steganography functions
-│   ├── crypto.py          # AES-256 encryption/decryption
+│   ├── crypto.py          # AES encryption/decryption
 │   └── utils.py           # Helper utilities
 ├── requirements.txt
 ├── README.md
@@ -171,12 +171,12 @@ pre-commit run --all-files
 
 ## What's New in v3.0.0
 
-- **🔒 AES-256 Encryption**: Password-based encryption using `--password` flag for both CLI and GUI
+- **🔒 AES Encryption**: Password-based encryption using `--password` flag for both CLI and GUI
 - **🖼️ BMP Support**: Added BMP image format for steganography
 - **📋 Version Flag**: Added `--version` / `-V` CLI flag
 - **🔐 Crypto Module**: New `stegano/crypto.py` with encrypt/decrypt/detect functions
 - **🧪 Expanded Tests**: 11 tests covering encryption, BMP support, and core functionality
-- **📦 New Dependency**: `cryptography` library for secure AES-256 encryption
+- **📦 New Dependency**: `cryptography` library for secure AES encryption
 
 All existing functionality remains fully compatible!
 
@@ -184,7 +184,7 @@ All existing functionality remains fully compatible!
 
 ## Security Notice
 
-This toolkit is for educational and research purposes. While v3.0.0 adds AES-256 encryption for hidden messages, steganography alone does **not** provide strong security. The encryption feature adds a layer of protection, but do not rely solely on it for high-security scenarios in adversarial environments.
+This toolkit is for educational and research purposes. While v3.0.0 adds AES encryption for hidden messages, steganography alone does **not** provide strong security. The encryption feature adds a layer of protection, but do not rely solely on it for high-security scenarios in adversarial environments.
 
 ---
 
