@@ -17,12 +17,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # Import after path modification
 # pylint: disable=wrong-import-position
 from stegano import (
+    __version__,
     decode_audio,
     decode_image,
     decode_text,
+    decrypt_message,
     encode_audio,
     encode_image,
     encode_text,
+    encrypt_message,
+    is_encrypted,
 )
 from stegano.audio import get_audio_capacity
 from stegano.image import get_image_capacity
@@ -40,7 +44,7 @@ def detect_file_type(filepath: str) -> str:
     """
     ext = get_file_extension(filepath)
 
-    if ext in [".png", ".jpg", ".jpeg"]:
+    if ext in [".png", ".jpg", ".jpeg", ".bmp"]:
         return "image"
     if ext in [".wav"]:
         return "audio"
@@ -64,7 +68,7 @@ def encode_command(args: argparse.Namespace) -> bool:
     if file_type == "unknown":
         print(f"✗ Unsupported file format: {get_file_extension(args.input)}")
         print(
-            "  Supported formats: PNG, JPEG (images), WAV (audio), TXT, MD (text)"
+            "  Supported formats: PNG, JPEG, BMP (images), WAV (audio), TXT, MD (text)"
         )
         return False
 
@@ -77,23 +81,33 @@ def encode_command(args: argparse.Namespace) -> bool:
         print("✗ Cannot specify both --message and --file")
         return False
 
+    # Prepare message content
+    message = args.message
+    file_path = args.file
+
+    # Apply encryption if password is provided
+    password = getattr(args, "password", None)
+    if password and message:
+        message = encrypt_message(message, password)
+        print("🔒 Message encrypted with password")
+
     # Encode based on file type
     success = False
 
     if file_type == "image":
         success = encode_image(
-            args.input, args.output, args.message, args.file
+            args.input, args.output, message, file_path
         )
     elif file_type == "audio":
         success = encode_audio(
-            args.input, args.output, args.message, args.file
+            args.input, args.output, message, file_path
         )
     elif file_type == "text":
         method = (
             args.text_method if hasattr(args, "text_method") else "whitespace"
         )
         success = encode_text(
-            args.input, args.output, args.message, args.file, method
+            args.input, args.output, message, file_path, method
         )
 
     return success
@@ -114,7 +128,7 @@ def decode_command(args: argparse.Namespace) -> bool:
     if file_type == "unknown":
         print(f"✗ Unsupported file format: {get_file_extension(args.input)}")
         print(
-            "  Supported formats: PNG, JPEG (images), WAV (audio), TXT, MD (text)"
+            "  Supported formats: PNG, JPEG, BMP (images), WAV (audio), TXT, MD (text)"
         )
         return False
 
@@ -130,6 +144,19 @@ def decode_command(args: argparse.Namespace) -> bool:
         decoded_message = decode_text(args.input, method)
 
     if decoded_message:
+        # Check if message is encrypted and decrypt if password provided
+        if is_encrypted(decoded_message):
+            password = getattr(args, "password", None)
+            if not password:
+                print("🔒 Message is encrypted. Use --password to decrypt.")
+                return False
+            decrypted = decrypt_message(decoded_message, password)
+            if decrypted is None:
+                print("✗ Decryption failed. Wrong password?")
+                return False
+            decoded_message = decrypted
+            print("🔓 Message decrypted successfully")
+
         print("\n" + "=" * 50)
         print("DECODED MESSAGE:")
         print("=" * 50)
@@ -190,11 +217,17 @@ Examples:
   # Encode text message in image
   python stegano_sec.py encode -i input.png -o output.png -m "Secret message"
 
+  # Encode with password encryption
+  python stegano_sec.py encode -i input.png -o output.png -m "Secret" -p mypass
+
   # Encode file contents in image
   python stegano_sec.py encode -i input.png -o output.png -f secret.txt
 
   # Decode message from image
   python stegano_sec.py decode -i encoded.png
+
+  # Decode encrypted message
+  python stegano_sec.py decode -i encoded.png -p mypass
 
   # Decode and save to file
   python stegano_sec.py decode -i encoded.png -o decoded.txt
@@ -210,10 +243,17 @@ Examples:
       --text-method zero_width
 
 Supported formats:
-  Images: PNG, JPEG (LSB steganography)
+  Images: PNG, JPEG, BMP (LSB steganography)
   Audio:  WAV (LSB steganography)
   Text:   TXT, MD (whitespace or zero-width character encoding)
         """,
+    )
+
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"stegano-sec {__version__}",
     )
 
     subparsers = parser.add_subparsers(
@@ -252,6 +292,11 @@ Supported formats:
         default="whitespace",
         help="Method for text steganography (default: whitespace)",
     )
+    encode_parser.add_argument(
+        "-p",
+        "--password",
+        help="Encrypt message with AES using this password",
+    )
 
     # Decode command
     decode_parser = subparsers.add_parser(
@@ -271,6 +316,11 @@ Supported formats:
         choices=["whitespace", "zero_width", "auto"],
         default="auto",
         help="Method for text steganography (default: auto)",
+    )
+    decode_parser.add_argument(
+        "-p",
+        "--password",
+        help="Decrypt message using this password",
     )
 
     # Capacity command

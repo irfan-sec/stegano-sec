@@ -2,16 +2,17 @@
 
 **stegano-sec** is a Python-based, offline steganography toolkit for security enthusiasts, CTF players, and researchers. It allows you to hide (encode) and extract (decode) text or files within various media types—such as images (PNG, JPEG), audio (WAV), and plain text files—with no need for external APIs or internet access. The toolkit is designed to be modular, user-friendly, and easily extensible, making it ideal for both educational and practical infosec use.
 
-> **🆕 Version 2.0.0**: Now with modern Python packaging, type hints, comprehensive testing, and improved development tools!
+> **🆕 Version 3.0.0**: Now with AES encryption, BMP support, and enhanced CLI!
 
 ---
 
 ## Features
 
 - **Encode and decode messages/files** in:
-  - PNG & JPEG images (using LSB steganography)
+  - PNG, JPEG & BMP images (using LSB steganography)
   - WAV audio files (LSB steganography)
   - Plain text files (whitespace or zero-width character encoding)
+- **🔒 AES Encryption**: Optional password-based encryption for hidden messages
 - **Graphical User Interface (GUI)** - Easy-to-use tkinter-based interface
 - **Command-line interface (CLI)** for easy usage and scripting
 - **Modular codebase** for adding new media formats or encoding techniques
@@ -76,10 +77,22 @@ The GUI provides three tabs:
 python stegano_sec.py encode -i input.png -o output.png -m "Secret message here"
 ```
 
+#### Encode with password encryption
+
+```bash
+python stegano_sec.py encode -i input.png -o output.png -m "Secret message" -p mypassword
+```
+
 #### Decode a message from an image
 
 ```bash
 python stegano_sec.py decode -i output.png
+```
+
+#### Decode an encrypted message
+
+```bash
+python stegano_sec.py decode -i output.png -p mypassword
 ```
 
 #### Encode a file in a WAV audio
@@ -109,6 +122,7 @@ stegano-sec/
 │   ├── image.py           # Image steganography functions
 │   ├── audio.py           # Audio steganography functions
 │   ├── text.py            # Text steganography functions
+│   ├── crypto.py          # AES encryption/decryption
 │   └── utils.py           # Helper utilities
 ├── requirements.txt
 ├── README.md
@@ -155,16 +169,14 @@ pre-commit run --all-files
 
 ---
 
-## What's New in v2.0.0
+## What's New in v3.0.0
 
-- **🔧 Modern Python Packaging**: Added `pyproject.toml` with comprehensive project metadata
-- **🎯 Type Safety**: Full type hints across all modules for better IDE support
-- **📁 Path Handling**: Migrated from `os.path` to modern `pathlib.Path`
-- **✅ Testing**: Added pytest-based test suite with basic functionality tests
-- **🛠️ Development Tools**: Pre-commit hooks, linting, formatting, and type checking
-- **📦 Package Installation**: Can now be installed as a proper Python package
-- **🧹 Dependency Cleanup**: Removed unnecessary dependencies (argparse)
-- **📝 Better Documentation**: Enhanced docstrings and type annotations
+- **🔒 AES Encryption**: Password-based encryption using `--password` flag for both CLI and GUI
+- **🖼️ BMP Support**: Added BMP image format for steganography
+- **📋 Version Flag**: Added `--version` / `-V` CLI flag
+- **🔐 Crypto Module**: New `stegano/crypto.py` with encrypt/decrypt/detect functions
+- **🧪 Expanded Tests**: 11 tests covering encryption, BMP support, and core functionality
+- **📦 New Dependency**: `cryptography` library for secure AES encryption
 
 All existing functionality remains fully compatible!
 
@@ -172,7 +184,7 @@ All existing functionality remains fully compatible!
 
 ## Security Notice
 
-This toolkit is for educational and research purposes. Steganography can hide information but does **not** encrypt it. Do not rely on it for strong security or privacy in adversarial environments.
+This toolkit is for educational and research purposes. While v3.0.0 adds AES encryption for hidden messages, steganography alone does **not** provide strong security. The encryption feature adds a layer of protection, but do not rely solely on it for high-security scenarios in adversarial environments.
 
 ---
 

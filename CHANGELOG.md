@@ -1,5 +1,33 @@
 # Changelog
 
+## [3.0.0] - 2026-02-26
+
+### New Features
+- **🔒 AES Encryption**: Optional password-based encryption for hidden messages using Fernet (AES-128-CBC + HMAC-SHA256) with PBKDF2 key derivation (600,000 iterations)
+- **🖼️ BMP Image Support**: Added BMP format support for image steganography
+- **📋 Version Flag**: Added `-V`/`--version` CLI flag to display current version
+- **🔐 Crypto Module**: New `stegano/crypto.py` module with `encrypt_message()`, `decrypt_message()`, and `is_encrypted()` functions
+
+### CLI Enhancements
+- **`-p`/`--password`**: New flag for encode and decode commands to enable AES encryption/decryption
+- Automatic detection of encrypted messages during decoding with clear user prompts
+
+### GUI Enhancements
+- **Password fields**: Added encryption password input to both Encode and Decode tabs
+- **BMP support**: Updated file dialogs to include BMP format
+
+### Dependencies
+- **Added**: `cryptography>=42.0.4` for AES encryption support
+
+### Testing
+- **6 new tests**: Encryption/decryption cycles, wrong password handling, BMP format support, encrypted steganography end-to-end test
+- **11 total tests** all passing
+
+### Backwards Compatibility
+- **✅ Fully backwards compatible**: All existing functionality works unchanged
+- Messages encoded without password can still be decoded without password
+- Encrypted messages are clearly identified with the `STEGENC1:` prefix
+
 ## [2.0.1] - 2024-09-28
 
 ### Maintenance

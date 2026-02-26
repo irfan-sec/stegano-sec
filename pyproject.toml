@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stegano-sec"
-version = "2.0.1"
+version = "3.0.0"
 authors = [
     {name = "Irfan Ali", email = "irfan.sec@example.com"}
 ]
@@ -32,6 +32,7 @@ keywords = ["steganography", "security", "ctf", "image", "audio", "text", "lsb"]
 dependencies = [
     "Pillow>=10.0.0",
     "numpy>=1.24.0",
+    "cryptography>=42.0.4",
 ]
 
 [project.optional-dependencies]
